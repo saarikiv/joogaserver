@@ -49,15 +49,16 @@ module.exports =
 	// Server main faile
 	//------------------------------------------
 
-	var express = __webpack_require__(27)
+	var express = __webpack_require__(30)
 	var JPS = {} //The global.
-	JPS.tests = __webpack_require__(25)
-	JPS.timeHelper = __webpack_require__(8)
+	JPS.tests = __webpack_require__(28)
+	JPS.timeHelper = __webpack_require__(9)
 	JPS.errorHelper = __webpack_require__(5)
 	JPS.cancelHelper = __webpack_require__(4)
-	JPS.pendingTransactionsHelper = __webpack_require__(7)
+	JPS.pendingTransactionsHelper = __webpack_require__(8)
 	JPS.mailer = __webpack_require__(6)
-	JPS.braintree = __webpack_require__(26);
+	JPS.braintree = __webpack_require__(29);
+	JPS.notifyQueueHelper = __webpack_require__(7);
 
 	console.log("ENV: ", process.env.PWD);
 	if (process.env.NODE_ENV == "production") {
@@ -77,7 +78,7 @@ module.exports =
 	        }
 	    };
 	}
-	JPS.firebase = __webpack_require__(28)
+	JPS.firebase = __webpack_require__(31)
 	JPS.app = express();
 	JPS.date = new Date();
 	JPS.listenport = 3000
@@ -123,28 +124,30 @@ module.exports =
 	JPS.mailer.initializeMail(JPS);
 
 	// HEADERS
-	__webpack_require__(23).setApp(JPS);
+	__webpack_require__(26).setApp(JPS);
 
 	// GET
 	__webpack_require__(2).setApp(JPS);
 	__webpack_require__(3).setApp(JPS);
 
 	// POST
+	__webpack_require__(20).setApp(JPS);
 	__webpack_require__(18).setApp(JPS);
+	__webpack_require__(21).setApp(JPS);
+	__webpack_require__(15).setApp(JPS);
+	__webpack_require__(10).setApp(JPS);
 	__webpack_require__(16).setApp(JPS);
 	__webpack_require__(19).setApp(JPS);
-	__webpack_require__(14).setApp(JPS);
-	__webpack_require__(9).setApp(JPS);
-	__webpack_require__(15).setApp(JPS);
-	__webpack_require__(17).setApp(JPS);
-	__webpack_require__(11).setApp(JPS);
-	__webpack_require__(13).setApp(JPS);
-	__webpack_require__(10).setApp(JPS);
-	__webpack_require__(22).setApp(JPS);
-	__webpack_require__(21).setApp(JPS);
 	__webpack_require__(12).setApp(JPS);
-	__webpack_require__(20).setApp(JPS);
+	__webpack_require__(14).setApp(JPS);
+	__webpack_require__(11).setApp(JPS);
+	__webpack_require__(25).setApp(JPS);
 	__webpack_require__(24).setApp(JPS);
+	__webpack_require__(13).setApp(JPS);
+	__webpack_require__(23).setApp(JPS);
+	__webpack_require__(27).setApp(JPS);
+	__webpack_require__(22).setApp(JPS);
+	__webpack_require__(17).setApp(JPS);
 
 	/* WEBPACK VAR INJECTION */}.call(exports, "/"))
 
@@ -263,48 +266,61 @@ module.exports =
 	        var promise = new Promise((resolve, reject) => {
 
 	            console.log("USER:", user);
-	            JPS.firebase.database().ref('/bookingsbycourse/' + courseInfo.key + '/' + courseInstance + '/' + user).once('value')
+	            JPS.firebase.database().ref('/bookingsbycourse/' + courseInfo.key + '/' + courseInstance + '/' + user.key).once('value')
 	            .then(snapshot => {
 	                if (snapshot.val() == null) {
 	                    throw (new Error("Booking by-COURSE does not exist in the database."))
 	                }
-	                return JPS.firebase.database().ref('/bookingsbyuser/' + user + '/' + courseInfo.key + '/' + courseInstance).once('value');
+	                return JPS.firebase.database().ref('/bookingsbyuser/' + user.key + '/' + courseInfo.key + '/' + courseInstance).once('value');
 	            })
 	            .then(snapshot => {
 	                if (snapshot.val() == null) {
 	                    throw (new Error("Booking by-USER does not exist in the database."))
 	                }
-	                return JPS.firebase.database().ref('/bookingsbyuser/' + user + '/' + courseInfo.key + '/' + courseInstance).remove();
+	                return JPS.firebase.database().ref('/bookingsbyuser/' + user.key + '/' + courseInfo.key + '/' + courseInstance).remove();
 	            })
 	            .then(() => {
-	                return JPS.firebase.database().ref('/bookingsbycourse/' + courseInfo.key + '/' + courseInstance + '/' + user).remove();
+	                return JPS.firebase.database().ref('/bookingsbycourse/' + courseInfo.key + '/' + courseInstance + '/' + user.key).remove();
 	            })
 	            .then(() => {
 	                console.log("Transaction reference: ", transactionReference)
 	                if (transactionReference != 0) {
 	                    //Give back one use time for the user
-	                    JPS.firebase.database().ref('/transactions/' + user + '/' + transactionReference).once('value')
+	                    JPS.firebase.database().ref('/transactions/' + user.key + '/' + transactionReference).once('value')
 	                        .then(snapshot => {
 	                            if (snapshot.val() == null) {
-	                                throw (new Error("Transaction not found in the DB: TX:" + user + "/" + transactionReference));
+	                                throw (new Error("Transaction not found in the DB: TX:" + user.key + "/" + transactionReference));
 	                            }
 	                            JPS.unusedtimes = snapshot.val().unusedtimes;
 	                            JPS.unusedtimes++;
-	                            return JPS.firebase.database().ref('/transactions/' + user + '/' + transactionReference).update({
+	                            return JPS.firebase.database().ref('/transactions/' + user.key + '/' + transactionReference).update({
 	                                unusedtimes: JPS.unusedtimes
 	                            })
 	                        })
-	                        .then(err => {
-	                            if (err) {
-	                                throw (new Error(err.message + " " + err.code));
-	                            }
-	                            JPS.mailer.sendCourseCancellationCount(JPS.user.email, courseInfo, courseInstance); //Send confirmation email
+	                        .then(() =>{
+	                            if (user.email) JPS.mailer.sendCourseCancellationCount(user.email, courseInfo, courseInstance); //Send confirmation email
 	                        }).catch(err => {
 	                            throw (new Error(err.message + " " + err.code));
 	                        })
 	                } else {
-	                    JPS.mailer.sendCourseCancellationTime(JPS.user.email, courseInfo, courseInstance); //Send confirmation email
+	                    if (user.email) JPS.mailer.sendCourseCancellationTime(user.email, courseInfo, courseInstance); //Send confirmation email
 	                }
+	                console.log("Cancel helper 1", courseInfo.key, courseInstance, user.key);
+	                JPS.firebase.database().ref('/queuebycourse/'+courseInfo.key+'/'+courseInstance).remove()
+	                JPS.firebase.database().ref('/queuebyuser/').once('value')
+	                .then( snapshot => {
+	                    if(snapshot.val() !== null){
+	                        var users = snapshot.val()
+	                        for(var user in users){
+	                            for(var course in users[user]){
+	                                if(course === courseInfo.key){
+	                                    JPS.firebase.database().ref('/queuebyuser/'+user+'/'+course).remove()
+	                                }
+	                            }
+	                        }
+	                    }
+	                })
+	                console.log("Cancel helper 2");
 	            })
 	            .catch(err => {
 	                console.error("Cancel Slot failed: ", err);
@@ -339,7 +355,7 @@ module.exports =
 /***/ function(module, exports, __webpack_require__) {
 
 	var JPSM = {}
-	JPSM.Mailgun = __webpack_require__(29)
+	JPSM.Mailgun = __webpack_require__(32)
 	JPSM.mg_api_key = process.env.MAILGUN_API_KEY || 'key-4230707292ae718f00a8274d41beb7f3';
 	JPSM.mg_domain = process.env.MAILGUN_DOMAIN || 'sandbox75ae890e64684217a94067bbc25db626.mailgun.org';
 	JPSM.mg_from_who = process.env.MAILGUN_FROM_WHO || 'postmaster@sandbox75ae890e64684217a94067bbc25db626.mailgun.org';
@@ -468,7 +484,7 @@ module.exports =
 	            "<p>Aika: " + JPSM.jps.timeHelper.getTimeStr(courseTime) + "</p>" +
 	            "<br></br>" +
 	            "<p>Mikäli et pääse osallistumaan tunnille voit perua ilmoittautumisesi vielä vähintään 3 h ennen tunnin alkamista.</p>" +
-	            "<footer><a href=\"https: //joogakoulusilta-projekti.firebaseapp.com\">Joogakoulu Silta</a>, jooga(at)joogasilta.com</footer>"
+	            "<footer><a href=\"https://www.siltavaraukset.com\">Joogakoulu Silta</a>, joogakoulusilta@gmail.com</footer>"
 
 	        console.log("CONFIRMATION: ", JPSM.html)
 
@@ -493,6 +509,8 @@ module.exports =
 	        day.setTime(courseTimeMs)
 	        console.log("sendCourseCancellationCount")
 	        console.log(courseTimeMs)
+	        console.log(courseInfo)
+	        console.log(sendTo)
 
 	        JPSM.html =
 	            "<h1>Tunti jolle olet ilmoittautunut on peruttu!</h1>" +
@@ -502,7 +520,7 @@ module.exports =
 	            "<br></br>" +
 	            "<p>Kertalippusi on palautettu tilillesi.</p>" +
 	            "<p>Tervetuloa jonain toisena ajankohtana!</p>" +
-	            "<footer><a href=\"https: //joogakoulusilta-projekti.firebaseapp.com\">Joogakoulu Silta</a>, jooga(at)joogasilta.com</footer>"
+	            "<footer><a href=\"https://www.siltavaraukset.com\">Joogakoulu Silta</a>, joogakoulusilta@gmail.com</footer>"
 
 	        JPSM.data = {
 	            from: JPSM.mg_from_who,
@@ -533,7 +551,7 @@ module.exports =
 	            "<p>Aika: " + JPSM.jps.timeHelper.getTimeStr(day) + "</p>" +
 	            "<br></br>" +
 	            "<p>Tervetuloa jonain toisena ajankohtana!</p>" +
-	            "<footer><a href=\"https: //joogakoulusilta-projekti.firebaseapp.com\">Joogakoulu Silta</a>, jooga(at)joogasilta.com</footer>"
+	            "<footer><a href=\"https://www.siltavaraukset.com\">Joogakoulu Silta</a>, joogakoulusilta@gmail.com</footer>"
 
 	        JPSM.data = {
 	            from: JPSM.mg_from_who,
@@ -566,7 +584,7 @@ module.exports =
 	            "<br></br>" +
 	            "<p>Kertalippusi on palautettu tilillesi.</p>" +
 	            "<p>Tervetuloa jonain toisena ajankohtana!</p>" +
-	            "<footer><a href=\"https: //joogakoulusilta-projekti.firebaseapp.com\">Joogakoulu Silta</a>, jooga(at)joogasilta.com</footer>"
+	            "<footer><a href=\"https://www.siltavaraukset.com\">Joogakoulu Silta</a>, joogakoulusilta@gmail.com</footer>"
 
 	        JPSM.data = {
 	            from: JPSM.mg_from_who,
@@ -597,7 +615,7 @@ module.exports =
 	            "<p>Aika: " + JPSM.jps.timeHelper.getTimeStr(day) + "</p>" +
 	            "<br></br>" +
 	            "<p>Tervetuloa jonain toisena ajankohtana!</p>" +
-	            "<footer><a href=\"https: //joogakoulusilta-projekti.firebaseapp.com\">Joogakoulu Silta</a>, jooga(at)joogasilta.com</footer>"
+	            "<footer><a href=\"https://www.siltavaraukset.com\">Joogakoulu Silta</a>, joogakoulusilta@gmail.com</footer>"
 
 	        JPSM.data = {
 	            from: JPSM.mg_from_who,
@@ -661,6 +679,38 @@ module.exports =
 	                console.log("RECEIPT-SENT: ", body);
 	            }
 	        });
+	    },
+
+	    sendQueueNotification: (sendTo, courseInfo, courseTimeMs) => {
+
+	        if (!JPSM.initialized) return;
+	        var day = new Date()
+	        day.setTime(courseTimeMs)
+	        console.log("sendQueueNotification")
+	        console.log(courseTimeMs)
+
+	        JPSM.html =
+	            "<h1>Tunnilta vapautunut paikka</h1>" +
+	            "<p>Paikka vapautunut tunnille " + courseInfo.courseType.name + "</p>" +
+	            "<p>Päivä: " + JPSM.jps.timeHelper.getDayStr(day) + "</p>" +
+	            "<p>Aika: " + JPSM.jps.timeHelper.getTimeStr(day) + "</p>" +
+	            "<br></br>" +
+	            "<p>Käy varaamassa paikkasi. Paikan saa ensimmäinen varaaja.</p>" +
+	            "<footer><a href=\"https://www.siltavaraukset.com\">Joogakoulu Silta</a>, joogakoulusilta@gmail.com</footer>"
+
+	        JPSM.data = {
+	            from: JPSM.mg_from_who,
+	            to: sendTo,
+	            subject: 'Tunnille vapautunut paikka, Joogakoulu Silta',
+	            html: JPSM.html
+	        }
+	        JPSM.mailgun.messages().send(JPSM.data, (err, body) => {
+	            if (err) {
+	                console.error("MAILGUN-QUEUE-error: ", err);
+	            } else {
+	                console.log("QUEUE-SENT: ", body);
+	            }
+	        });
 	    }
 
 
@@ -669,6 +719,36 @@ module.exports =
 
 /***/ },
 /* 7 */
+/***/ function(module, exports) {
+
+	module.exports = {
+	    notifyQueue: (JPS, courseInfo, courseInstance) => {
+
+	        var promise = new Promise((resolve, reject) => {
+
+	            JPS.firebase.database().ref('/queuebycourse/' + courseInfo.key + '/' + courseInstance).once('value')
+	            .then(snapshot => {
+	                const users = snapshot.val()
+	                if (users === null) {
+	                    resolve()
+	                }
+	                for (let user in users) {
+	                    JPS.mailer.sendQueueNotification(users[user].email, courseInfo, courseInstance)
+	                }
+	            })            
+	            .catch(err => {
+	                console.error("Notifying Queue failed: ", err);
+	                reject( "Notifying Queue failed: " + err.toString() );
+	            });
+	            resolve()
+	        })
+	        return promise;
+	    }
+	}
+
+
+/***/ },
+/* 8 */
 /***/ function(module, exports) {
 
 	
@@ -742,7 +822,7 @@ module.exports =
 
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports) {
 
 	var JHLP = {}
@@ -793,7 +873,7 @@ module.exports =
 	}
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports) {
 
 	exports.setApp = function(JPS) {
@@ -856,7 +936,7 @@ module.exports =
 	}
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports) {
 
 	exports.setApp = function(JPS) {
@@ -915,7 +995,7 @@ module.exports =
 	                    console.log("Process participants: ", JPS.participants);
 	                    JPS.participants.forEach((item) => {
 	                      console.log("Processing: ", item);
-	                        JPS.cancelHelper.cancelSlot(JPS, item.key, JPS.courseInfo, JPS.courseInstance, item.transactionReference)
+	                        JPS.cancelHelper.cancelSlot(JPS, item, JPS.courseInfo, JPS.courseInstance, item.transactionReference)
 	                        .then(() => {
 	                            console.log("Course cancellation OK for user: " + item.key);
 	                        })
@@ -939,7 +1019,7 @@ module.exports =
 
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports) {
 
 	exports.setApp = function(JPS) {
@@ -984,7 +1064,7 @@ module.exports =
 
 
 /***/ },
-/* 12 */
+/* 13 */
 /***/ function(module, exports) {
 
 	exports.setApp = function(JPS) {
@@ -1075,6 +1155,9 @@ module.exports =
 	                        }).end();
 	                        JPS.mailer.sendCancellationTime(JPS.user.email, JPS.courseInfo, JPS.cancelItem); //Send confirmation email
 	                    }
+	                    console.log("PREMAIL")
+	                    JPS.notifyQueueHelper.notifyQueue(JPS, JPS.courseInfo, JPS.cancelItem)
+	                    console.log("AFTERMAIL")
 	                })
 	                .catch(err => {
 	                    console.error("POST Cancel Slot failed: ", err);
@@ -1088,7 +1171,7 @@ module.exports =
 
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports) {
 
 	exports.setApp = function(JPS) {
@@ -1243,7 +1326,7 @@ module.exports =
 
 
 /***/ },
-/* 14 */
+/* 15 */
 /***/ function(module, exports) {
 
 	exports.setApp = function(JPS) {
@@ -1402,7 +1485,7 @@ module.exports =
 
 
 /***/ },
-/* 15 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -1506,7 +1589,73 @@ module.exports =
 
 
 /***/ },
-/* 16 */
+/* 17 */
+/***/ function(module, exports) {
+
+	
+	exports.setApp = function (JPS){
+
+	  //######################################################
+	  // POST: exitQueue
+	  // Exit user to full course queue for notifications.
+	  //######################################################
+
+	  JPS.app.post('/exitQueue', (req, res) => {
+	    JPS.now = Date.now();
+	    console.log("POST: exitQueue", JPS.now);
+	    JPS.body = '';
+	    req.on('data', (data) => {
+	      JPS.body += data;
+	      // Too much POST data, kill the connection!
+	      // 1e6 === 1 * Math.pow(10, 6) === 1 * 1000000 ~~~ 1MB
+	      if (JPS.body.length > 1e6) req.connection.destroy();
+	    });
+
+	    req.on('end', () => {
+	      JPS.post = JSON.parse(JPS.body);
+	      console.log("POST:", JPS.post);
+	      JPS.currentUserToken = JPS.post.user;
+	      JPS.courseInfo = JPS.post.courseInfo;
+	      JPS.weeksForward = JPS.post.weeksForward;
+	      JPS.courseTime = JPS.timeHelper.getCourseTimeLocal(JPS.weeksForward, JPS.courseInfo.start, JPS.courseInfo.day)
+
+	      JPS.firebase.auth().verifyIdToken(JPS.currentUserToken)
+
+	      .then( decodedToken => {
+	        JPS.currentUserUID = decodedToken.sub;
+	        console.log("User: ", JPS.currentUserUID, " exit queue.");
+	        return JPS.firebase.database().ref('/users/'+JPS.currentUserUID).once('value')
+	      })
+	      
+	      .then ( snapshot => {
+	        if(snapshot.val() == null){
+	          throw(new Error("User record does not exist in the database: " + JPS.currentUserUID))
+	        }
+	        JPS.user = snapshot.val();
+	        JPS.user.key = snapshot.key;
+	        console.log("USER:",JPS.user);
+	        console.log("courseINFO:",JPS.courseInfo);
+
+	        return JPS.firebase.database().ref('/queuebyuser/'+JPS.currentUserUID+'/'+JPS.courseInfo.key).remove()
+	      })
+	      .then ( () => {
+	        return JPS.firebase.database().ref('/queuebycourse/'+JPS.courseInfo.key+'/'+JPS.courseTime.getTime()+'/'+JPS.currentUserUID).remove()
+	      })
+	      .then ( () => {
+	        res.status(200).end()
+	      })
+	      
+	      .catch( err => {
+	        console.error("exit Queue failed: ", err);
+	        res.status(500).jsonp("exit Queue failed" + String(err)).end();
+	      })
+	    })
+	  })
+	}
+
+
+/***/ },
+/* 18 */
 /***/ function(module, exports) {
 
 	exports.setApp = function(JPS) {
@@ -1554,7 +1703,7 @@ module.exports =
 
 
 /***/ },
-/* 17 */
+/* 19 */
 /***/ function(module, exports) {
 
 	exports.setApp = function(JPS) {
@@ -1706,7 +1855,7 @@ module.exports =
 
 
 /***/ },
-/* 18 */
+/* 20 */
 /***/ function(module, exports) {
 
 	exports.setApp = function(JPS) {
@@ -1750,7 +1899,7 @@ module.exports =
 
 
 /***/ },
-/* 19 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -1799,7 +1948,73 @@ module.exports =
 
 
 /***/ },
-/* 20 */
+/* 22 */
+/***/ function(module, exports) {
+
+	
+	exports.setApp = function (JPS){
+
+	  //######################################################
+	  // POST: requestQueue
+	  // Request user to full course queue for notifications.
+	  //######################################################
+
+	  JPS.app.post('/requestQueue', (req, res) => {
+	    JPS.now = Date.now();
+	    console.log("POST: requestQueue", JPS.now);
+	    JPS.body = '';
+	    req.on('data', (data) => {
+	      JPS.body += data;
+	      // Too much POST data, kill the connection!
+	      // 1e6 === 1 * Math.pow(10, 6) === 1 * 1000000 ~~~ 1MB
+	      if (JPS.body.length > 1e6) req.connection.destroy();
+	    });
+
+	    req.on('end', () => {
+	      JPS.post = JSON.parse(JPS.body);
+	      console.log("POST:", JPS.post);
+	      JPS.currentUserToken = JPS.post.user;
+	      JPS.courseInfo = JPS.post.courseInfo;
+	      JPS.weeksForward = JPS.post.weeksForward;
+	      JPS.courseTime = JPS.timeHelper.getCourseTimeLocal(JPS.weeksForward, JPS.courseInfo.start, JPS.courseInfo.day)
+
+	      JPS.firebase.auth().verifyIdToken(JPS.currentUserToken)
+
+	      .then( decodedToken => {
+	        JPS.currentUserUID = decodedToken.sub;
+	        console.log("User: ", JPS.currentUserUID, " requested queue.");
+	        return JPS.firebase.database().ref('/users/'+JPS.currentUserUID).once('value')
+	      })
+	      
+	      .then ( snapshot => {
+	        if(snapshot.val() == null){
+	          throw(new Error("User record does not exist in the database: " + JPS.currentUserUID))
+	        }
+	        JPS.user = snapshot.val();
+	        JPS.user.key = snapshot.key;
+	        console.log("USER:",JPS.user);
+	        console.log("courseINFO:",JPS.courseInfo);
+
+	        return JPS.firebase.database().ref('/queuebyuser/'+JPS.currentUserUID+'/'+JPS.courseInfo.key).update({time: JPS.courseTime.getTime()})
+	      })
+	      .then ( () => {
+	        return JPS.firebase.database().ref('/queuebycourse/'+JPS.courseInfo.key+'/'+JPS.courseTime.getTime()+'/'+JPS.currentUserUID).update({email: JPS.user.email, firstname: JPS.user.firstname, lastname: JPS.user.lastname})
+	      })
+	      .then ( () => {
+	        res.status(200).end()
+	      })
+	      
+	      .catch( err => {
+	        console.error("Queue failed: ", err);
+	        res.status(500).jsonp("Queue failed" + String(err)).end();
+	      })
+	    })
+	  })
+	}
+
+
+/***/ },
+/* 23 */
 /***/ function(module, exports) {
 
 	exports.setApp = function(JPS) {
@@ -1861,7 +2076,7 @@ module.exports =
 
 
 /***/ },
-/* 21 */
+/* 24 */
 /***/ function(module, exports) {
 
 	
@@ -2031,7 +2246,7 @@ module.exports =
 
 
 /***/ },
-/* 22 */
+/* 25 */
 /***/ function(module, exports) {
 
 	
@@ -2146,7 +2361,8 @@ module.exports =
 	              user: (JPS.user.alias)? JPS.user.alias : JPS.user.firstname + " " + JPS.user.lastname,
 	              transactionReference: JPS.transactionReference,
 	              courseName: JPS.courseInfo.courseType.name,
-	              courseTime: JPS.bookingTime
+	              courseTime: JPS.bookingTime,
+	              email: JPS.user.email
 	            })
 	            .then( err => {
 	              if(err){
@@ -2170,6 +2386,9 @@ module.exports =
 	                res.status(200).jsonp("Booking done succesfully").end();
 	                JPS.mailer.sendConfirmation(JPS.user.email, JPS.courseInfo, JPS.courseTime); //Send confirmation email
 	                //======================================
+
+	                JPS.firebase.database().ref('/queuebycourse/'+JPS.courseInfo.key+'/'+JPS.bookingTime+'/'+JPS.user.key).remove()
+	                JPS.firebase.database().ref('/queuebyuser/'+JPS.user.key+'/'+JPS.courseInfo.key).remove()
 	              }
 	            })
 	            .catch( err => {
@@ -2187,7 +2406,7 @@ module.exports =
 
 
 /***/ },
-/* 23 */
+/* 26 */
 /***/ function(module, exports) {
 
 	
@@ -2211,7 +2430,7 @@ module.exports =
 
 
 /***/ },
-/* 24 */
+/* 27 */
 /***/ function(module, exports) {
 
 	
@@ -2258,7 +2477,7 @@ module.exports =
 
 
 /***/ },
-/* 25 */
+/* 28 */
 /***/ function(module, exports) {
 
 	
@@ -2306,25 +2525,25 @@ module.exports =
 	}
 
 /***/ },
-/* 26 */
+/* 29 */
 /***/ function(module, exports) {
 
 	module.exports = require("braintree");
 
 /***/ },
-/* 27 */
+/* 30 */
 /***/ function(module, exports) {
 
 	module.exports = require("express");
 
 /***/ },
-/* 28 */
+/* 31 */
 /***/ function(module, exports) {
 
 	module.exports = require("firebase");
 
 /***/ },
-/* 29 */
+/* 32 */
 /***/ function(module, exports) {
 
 	module.exports = require("mailgun-js");

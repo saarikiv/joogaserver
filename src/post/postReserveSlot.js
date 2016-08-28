@@ -110,7 +110,8 @@ exports.setApp = function (JPS){
               user: (JPS.user.alias)? JPS.user.alias : JPS.user.firstname + " " + JPS.user.lastname,
               transactionReference: JPS.transactionReference,
               courseName: JPS.courseInfo.courseType.name,
-              courseTime: JPS.bookingTime
+              courseTime: JPS.bookingTime,
+              email: JPS.user.email
             })
             .then( err => {
               if(err){
@@ -134,6 +135,9 @@ exports.setApp = function (JPS){
                 res.status(200).jsonp("Booking done succesfully").end();
                 JPS.mailer.sendConfirmation(JPS.user.email, JPS.courseInfo, JPS.courseTime); //Send confirmation email
                 //======================================
+
+                JPS.firebase.database().ref('/queuebycourse/'+JPS.courseInfo.key+'/'+JPS.bookingTime+'/'+JPS.user.key).remove()
+                JPS.firebase.database().ref('/queuebyuser/'+JPS.user.key+'/'+JPS.courseInfo.key).remove()
               }
             })
             .catch( err => {

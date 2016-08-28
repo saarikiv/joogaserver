@@ -86,6 +86,7 @@ exports.setApp = function(JPS) {
                         }).end();
                         JPS.mailer.sendCancellationTime(JPS.user.email, JPS.courseInfo, JPS.cancelItem); //Send confirmation email
                     }
+                    JPS.notifyQueueHelper.notifyQueue(JPS, JPS.courseInfo, JPS.cancelItem)
                 })
                 .catch(err => {
                     console.error("POST Cancel Slot failed: ", err);

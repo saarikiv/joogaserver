@@ -128,7 +128,7 @@ module.exports = {
             "<p>Aika: " + JPSM.jps.timeHelper.getTimeStr(courseTime) + "</p>" +
             "<br></br>" +
             "<p>Mikäli et pääse osallistumaan tunnille voit perua ilmoittautumisesi vielä vähintään 3 h ennen tunnin alkamista.</p>" +
-            "<footer><a href=\"https: //joogakoulusilta-projekti.firebaseapp.com\">Joogakoulu Silta</a>, jooga(at)joogasilta.com</footer>"
+            "<footer><a href=\"https://www.siltavaraukset.com\">Joogakoulu Silta</a>, joogakoulusilta@gmail.com</footer>"
 
         console.log("CONFIRMATION: ", JPSM.html)
 
@@ -153,6 +153,8 @@ module.exports = {
         day.setTime(courseTimeMs)
         console.log("sendCourseCancellationCount")
         console.log(courseTimeMs)
+        console.log(courseInfo)
+        console.log(sendTo)
 
         JPSM.html =
             "<h1>Tunti jolle olet ilmoittautunut on peruttu!</h1>" +
@@ -162,7 +164,7 @@ module.exports = {
             "<br></br>" +
             "<p>Kertalippusi on palautettu tilillesi.</p>" +
             "<p>Tervetuloa jonain toisena ajankohtana!</p>" +
-            "<footer><a href=\"https: //joogakoulusilta-projekti.firebaseapp.com\">Joogakoulu Silta</a>, jooga(at)joogasilta.com</footer>"
+            "<footer><a href=\"https://www.siltavaraukset.com\">Joogakoulu Silta</a>, joogakoulusilta@gmail.com</footer>"
 
         JPSM.data = {
             from: JPSM.mg_from_who,
@@ -193,7 +195,7 @@ module.exports = {
             "<p>Aika: " + JPSM.jps.timeHelper.getTimeStr(day) + "</p>" +
             "<br></br>" +
             "<p>Tervetuloa jonain toisena ajankohtana!</p>" +
-            "<footer><a href=\"https: //joogakoulusilta-projekti.firebaseapp.com\">Joogakoulu Silta</a>, jooga(at)joogasilta.com</footer>"
+            "<footer><a href=\"https://www.siltavaraukset.com\">Joogakoulu Silta</a>, joogakoulusilta@gmail.com</footer>"
 
         JPSM.data = {
             from: JPSM.mg_from_who,
@@ -226,7 +228,7 @@ module.exports = {
             "<br></br>" +
             "<p>Kertalippusi on palautettu tilillesi.</p>" +
             "<p>Tervetuloa jonain toisena ajankohtana!</p>" +
-            "<footer><a href=\"https: //joogakoulusilta-projekti.firebaseapp.com\">Joogakoulu Silta</a>, jooga(at)joogasilta.com</footer>"
+            "<footer><a href=\"https://www.siltavaraukset.com\">Joogakoulu Silta</a>, joogakoulusilta@gmail.com</footer>"
 
         JPSM.data = {
             from: JPSM.mg_from_who,
@@ -257,7 +259,7 @@ module.exports = {
             "<p>Aika: " + JPSM.jps.timeHelper.getTimeStr(day) + "</p>" +
             "<br></br>" +
             "<p>Tervetuloa jonain toisena ajankohtana!</p>" +
-            "<footer><a href=\"https: //joogakoulusilta-projekti.firebaseapp.com\">Joogakoulu Silta</a>, jooga(at)joogasilta.com</footer>"
+            "<footer><a href=\"https://www.siltavaraukset.com\">Joogakoulu Silta</a>, joogakoulusilta@gmail.com</footer>"
 
         JPSM.data = {
             from: JPSM.mg_from_who,
@@ -319,6 +321,38 @@ module.exports = {
                 console.error("MAILGUN-RECEIPT-error: ", err);
             } else {
                 console.log("RECEIPT-SENT: ", body);
+            }
+        });
+    },
+
+    sendQueueNotification: (sendTo, courseInfo, courseTimeMs) => {
+
+        if (!JPSM.initialized) return;
+        var day = new Date()
+        day.setTime(courseTimeMs)
+        console.log("sendQueueNotification")
+        console.log(courseTimeMs)
+
+        JPSM.html =
+            "<h1>Tunnilta vapautunut paikka</h1>" +
+            "<p>Paikka vapautunut tunnille " + courseInfo.courseType.name + "</p>" +
+            "<p>Päivä: " + JPSM.jps.timeHelper.getDayStr(day) + "</p>" +
+            "<p>Aika: " + JPSM.jps.timeHelper.getTimeStr(day) + "</p>" +
+            "<br></br>" +
+            "<p>Käy varaamassa paikkasi. Paikan saa ensimmäinen varaaja.</p>" +
+            "<footer><a href=\"https://www.siltavaraukset.com\">Joogakoulu Silta</a>, joogakoulusilta@gmail.com</footer>"
+
+        JPSM.data = {
+            from: JPSM.mg_from_who,
+            to: sendTo,
+            subject: 'Tunnille vapautunut paikka, Joogakoulu Silta',
+            html: JPSM.html
+        }
+        JPSM.mailgun.messages().send(JPSM.data, (err, body) => {
+            if (err) {
+                console.error("MAILGUN-QUEUE-error: ", err);
+            } else {
+                console.log("QUEUE-SENT: ", body);
             }
         });
     }

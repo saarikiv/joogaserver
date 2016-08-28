@@ -40,7 +40,7 @@ exports.setApp = function(JPS) {
                 })
                 .then(snapshot => {
                     JPS.specialUser = snapshot.val()
-                    if (JPS.specialUser.instructor) {
+                    if (JPS.specialUser.instructor || JPS.specialUser.admin) {
                         console.log("USER requesting cancelcourse is INSTRUCTOR.");
                         return JPS.firebase.database().ref('/cancelledCourses/' + JPS.courseInfo.key + '/' + JPS.courseInstance).update({
                           user: JPS.currentUserUID,

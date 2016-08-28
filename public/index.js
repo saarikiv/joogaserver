@@ -305,7 +305,6 @@ module.exports =
 	                } else {
 	                    if (user.email) JPS.mailer.sendCourseCancellationTime(user.email, courseInfo, courseInstance); //Send confirmation email
 	                }
-	                console.log("Cancel helper 1", courseInfo.key, courseInstance, user.key);
 	                JPS.firebase.database().ref('/queuebycourse/'+courseInfo.key+'/'+courseInstance).remove()
 	                JPS.firebase.database().ref('/queuebyuser/').once('value')
 	                .then( snapshot => {
@@ -320,7 +319,6 @@ module.exports =
 	                        }
 	                    }
 	                })
-	                console.log("Cancel helper 2");
 	            })
 	            .catch(err => {
 	                console.error("Cancel Slot failed: ", err);
@@ -1155,9 +1153,7 @@ module.exports =
 	                        }).end();
 	                        JPS.mailer.sendCancellationTime(JPS.user.email, JPS.courseInfo, JPS.cancelItem); //Send confirmation email
 	                    }
-	                    console.log("PREMAIL")
 	                    JPS.notifyQueueHelper.notifyQueue(JPS, JPS.courseInfo, JPS.cancelItem)
-	                    console.log("AFTERMAIL")
 	                })
 	                .catch(err => {
 	                    console.error("POST Cancel Slot failed: ", err);

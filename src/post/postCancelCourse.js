@@ -40,7 +40,7 @@ exports.setApp = function(JPS) {
                 })
                 .then(snapshot => {
                     JPS.specialUser = snapshot.val()
-                    if (JPS.specialUser.instructor) {
+                    if (JPS.specialUser.instructor || JPS.specialUser.admin) {
                         console.log("USER requesting cancelcourse is INSTRUCTOR.");
                         return JPS.firebase.database().ref('/cancelledCourses/' + JPS.courseInfo.key + '/' + JPS.courseInstance).update({
                           user: JPS.currentUserUID,
@@ -54,7 +54,7 @@ exports.setApp = function(JPS) {
                     console.log("Process participants: ", JPS.participants);
                     JPS.participants.forEach((item) => {
                       console.log("Processing: ", item);
-                        JPS.cancelHelper.cancelSlot(JPS, item.key, JPS.courseInfo, JPS.courseInstance, item.transactionReference)
+                        JPS.cancelHelper.cancelSlot(JPS, item, JPS.courseInfo, JPS.courseInstance, item.transactionReference)
                         .then(() => {
                             console.log("Course cancellation OK for user: " + item.key);
                         })

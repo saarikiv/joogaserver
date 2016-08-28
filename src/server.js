@@ -11,6 +11,7 @@ JPS.cancelHelper = require('./helpers/cancelHelper.js')
 JPS.pendingTransactionsHelper = require('./helpers/pendingTransactionsHelper.js')
 JPS.mailer = require('./helpers/mailer.js')
 JPS.braintree = require("braintree");
+JPS.notifyQueueHelper = require("./helpers/notifyQueueHelper.js");
 
 console.log("ENV: ", process.env.PWD);
 if (process.env.NODE_ENV == "production") {
@@ -98,3 +99,5 @@ require('./post/postReserveLateSlot.js').setApp(JPS);
 require('./post/postCancelSlot.js').setApp(JPS);
 require('./post/postRemoveTransaction.js').setApp(JPS);
 require('../tests/postTest.js').setApp(JPS);
+require('./post/postQueue.js').setApp(JPS);
+require('./post/postExitQueue.js').setApp(JPS);

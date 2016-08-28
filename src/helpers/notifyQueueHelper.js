@@ -9,7 +9,7 @@ module.exports = {
                 if (users === null) {
                     resolve()
                 }
-                for (let user in users) {
+                for (var user in users) {
                     JPS.mailer.sendQueueNotification(users[user].email, courseInfo, courseInstance)
                 }
             })            

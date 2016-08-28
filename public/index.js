@@ -35,7 +35,7 @@ module.exports =
 /******/ 	__webpack_require__.c = installedModules;
 
 /******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "/home/saarikiv/joogaserver/public/";
+/******/ 	__webpack_require__.p = "/Users/tero/code/joogaserver/public/";
 
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(0);
@@ -896,7 +896,7 @@ module.exports =
 	                })
 	                .then(snapshot => {
 	                    JPS.specialUser = snapshot.val()
-	                    if (JPS.specialUser.instructor) {
+	                    if (JPS.specialUser.instructor || JPS.specialUser.admin) {
 	                        console.log("USER requesting cancelcourse is INSTRUCTOR.");
 	                        return JPS.firebase.database().ref('/cancelledCourses/' + JPS.courseInfo.key + '/' + JPS.courseInstance).update({
 	                          user: JPS.currentUserUID,

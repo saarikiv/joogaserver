@@ -98,3 +98,4 @@ require('./post/postReserveLateSlot.js').setApp(JPS);
 require('./post/postCancelSlot.js').setApp(JPS);
 require('./post/postRemoveTransaction.js').setApp(JPS);
 require('../tests/postTest.js').setApp(JPS);
+require('../post/postQueue.js').setApp(JPS);

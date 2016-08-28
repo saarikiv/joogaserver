@@ -35,7 +35,7 @@ module.exports =
 /******/ 	__webpack_require__.c = installedModules;
 
 /******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "/Users/tero/code/joogaserver/public/";
+/******/ 	__webpack_require__.p = "/home/tsa/repo/joogaserver/public/";
 
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(0);
@@ -614,7 +614,7 @@ module.exports =
 	        });
 	    },
 
-	    sendReceipt: (sendTo, trx, trxId) => {
+	    sendReceipt: (sendTo, trx, trxId, type) => {
 	        if (!JPSM.initialized) return;
 
 	        console.log("sendReceipt")
@@ -623,10 +623,15 @@ module.exports =
 	        expires.setTime(trx.expires);
 	        var expiresTxt = trx.expires != 0? "<p> Voimassaolo loppuu: " + JPSM.jps.timeHelper.getDayStr(expires) + "</p>" : ""
 
+	        var extraText = ""
+	        if(type === "normal"){
+	            extraText = "<h1>Kiitos ostostasi!</h1>" +
+	                "<p>Voit nyt mennä varaamaan tunteja <a href=\"https://www.siltavaraukset.com\">Joogakoulu Sillan</a> varauspalvelusta.</p>" +
+	                "<br></br>" 
+	        }
+
 	        JPSM.html =
-	            "<h1>Kiitos ostostasi!</h1>" +
-	            "<p>Voit nyt mennä varaamaan tunteja <a href=\"https://www.siltavaraukset.com\">Joogakoulu Sillan</a> varauspalvelusta.</p>" +
-	            "<br></br>" +
+	            extraText +
 	            "<h1>Ostokuitti</h1>" +
 	            "<br></br>" +
 	            "<p>Tuote: " + trx.title + "</p>" +
@@ -713,7 +718,7 @@ module.exports =
 	                    .update({transactionReference: JPS.pendingTransaction.timestamp, shopItem: JPS.pendingTransaction.shopItem})
 	                }).then(()=>{
 	                    console.log("Updated SC-bookings succesfully");
-	                    JPS.mailer.sendReceipt(JPS.pendingTransaction.receiptEmail, JPS.dataToUpdate, JPS.pendingTransaction.timestamp);
+	                    JPS.mailer.sendReceipt(JPS.pendingTransaction.receiptEmail, JPS.dataToUpdate, JPS.pendingTransaction.timestamp, "special");
 	                })
 	                .catch(error => {
 	                    console.error("Processing SC-bookings failed: ", pendingTransactionKey, error);
@@ -721,7 +726,7 @@ module.exports =
 	                })
 	                resolve({code: 200, message: "OK"});                    
 	            } else {
-	                JPS.mailer.sendReceipt(JPS.pendingTransaction.receiptEmail, JPS.dataToUpdate, JPS.pendingTransaction.timestamp);
+	                JPS.mailer.sendReceipt(JPS.pendingTransaction.receiptEmail, JPS.dataToUpdate, JPS.pendingTransaction.timestamp, "normal");
 	                resolve({code: 200, message: "OK"});                    
 	            }                  
 	        }).catch(err => {
@@ -1172,7 +1177,7 @@ module.exports =
 	                            .then(() => {
 	                                console.log("Transaction saved: ", JPS.transaction, JPS.shopItem);
 	                                res.status(200).jsonp(JPS.transaction).end();
-	                                JPS.mailer.sendReceipt(JPS.forUser.email, JPS.transaction, JPS.now); //Send confirmation email
+	                                JPS.mailer.sendReceipt(JPS.forUser.email, JPS.transaction, JPS.now, "normal"); //Send confirmation email
 	                            }).catch(err => {
 	                                throw (new Error(err.message + " " + err.code));
 	                            });
@@ -1197,7 +1202,7 @@ module.exports =
 	                            .then(() => {
 	                                console.log("Transaction saved: ", JPS.transaction, JPS.shopItem);
 	                                res.status(200).jsonp(JPS.transaction).end();
-	                                JPS.mailer.sendReceipt(JPS.forUser.email, JPS.transaction, JPS.now); //Send confirmation email
+	                                JPS.mailer.sendReceipt(JPS.forUser.email, JPS.transaction, JPS.now, "normal"); //Send confirmation email
 	                            })
 	                            .catch(err => {
 	                                console.error(err.message + " " + err.code)
@@ -1220,7 +1225,7 @@ module.exports =
 	                          .then(() => {
 	                              console.log("Transaction saved: ", JPS.transaction, JPS.shopItem);
 	                              res.status(200).jsonp(JPS.transaction).end();
-	                              JPS.mailer.sendReceipt(JPS.forUser.email, JPS.transaction, JPS.now); //Send confirmation email
+	                              JPS.mailer.sendReceipt(JPS.forUser.email, JPS.transaction, JPS.now, "special"); //Send confirmation email
 	                          }).catch(err => {
 	                              throw (new Error(err.message + " " + err.code));
 	                          });
@@ -1330,7 +1335,7 @@ module.exports =
 	                                .then(() => {
 	                                    console.log("Transaction saved: ", JPS.transaction, JPS.shopItem);
 	                                    res.status(200).jsonp(JPS.transaction).end();
-	                                    JPS.mailer.sendReceipt(JPS.user.email, JPS.transaction, JPS.now); //Send confirmation email
+	                                    JPS.mailer.sendReceipt(JPS.user.email, JPS.transaction, JPS.now, "normal"); //Send confirmation email
 	                                }).catch(err => {
 	                                    throw (new Error(err.message + " " + err.code));
 	                                });
@@ -1355,7 +1360,7 @@ module.exports =
 	                                .then(() => {
 	                                    console.log("Transaction saved: ", JPS.transaction, JPS.shopItem);
 	                                    res.status(200).jsonp(JPS.transaction).end();
-	                                    JPS.mailer.sendReceipt(JPS.user.email, JPS.transaction, JPS.now); //Send confirmation email
+	                                    JPS.mailer.sendReceipt(JPS.user.email, JPS.transaction, JPS.now, "normal"); //Send confirmation email
 	                                })
 	                                .catch(err => {
 	                                    console.error(err.message + " " + err.code)
@@ -1378,7 +1383,7 @@ module.exports =
 	                              .then(() => {
 	                                  console.log("Transaction saved: ", JPS.transaction, JPS.shopItem);
 	                                  res.status(200).jsonp(JPS.transaction).end();
-	                                  JPS.mailer.sendReceipt(JPS.user.email, JPS.transaction, JPS.now); //Send confirmation email
+	                                  JPS.mailer.sendReceipt(JPS.user.email, JPS.transaction, JPS.now, "special"); //Send confirmation email
 	                              }).catch(err => {
 	                                  throw (new Error(err.message + " " + err.code));
 	                              });

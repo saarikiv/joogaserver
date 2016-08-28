@@ -87,7 +87,7 @@ exports.setApp = function(JPS) {
                                 .then(() => {
                                     console.log("Transaction saved: ", JPS.transaction, JPS.shopItem);
                                     res.status(200).jsonp(JPS.transaction).end();
-                                    JPS.mailer.sendReceipt(JPS.user.email, JPS.transaction, JPS.now); //Send confirmation email
+                                    JPS.mailer.sendReceipt(JPS.user.email, JPS.transaction, JPS.now, "normal"); //Send confirmation email
                                 }).catch(err => {
                                     throw (new Error(err.message + " " + err.code));
                                 });
@@ -112,7 +112,7 @@ exports.setApp = function(JPS) {
                                 .then(() => {
                                     console.log("Transaction saved: ", JPS.transaction, JPS.shopItem);
                                     res.status(200).jsonp(JPS.transaction).end();
-                                    JPS.mailer.sendReceipt(JPS.user.email, JPS.transaction, JPS.now); //Send confirmation email
+                                    JPS.mailer.sendReceipt(JPS.user.email, JPS.transaction, JPS.now, "normal"); //Send confirmation email
                                 })
                                 .catch(err => {
                                     console.error(err.message + " " + err.code)
@@ -135,7 +135,7 @@ exports.setApp = function(JPS) {
                               .then(() => {
                                   console.log("Transaction saved: ", JPS.transaction, JPS.shopItem);
                                   res.status(200).jsonp(JPS.transaction).end();
-                                  JPS.mailer.sendReceipt(JPS.user.email, JPS.transaction, JPS.now); //Send confirmation email
+                                  JPS.mailer.sendReceipt(JPS.user.email, JPS.transaction, JPS.now, "special"); //Send confirmation email
                               }).catch(err => {
                                   throw (new Error(err.message + " " + err.code));
                               });

@@ -274,7 +274,7 @@ module.exports = {
         });
     },
 
-    sendReceipt: (sendTo, trx, trxId) => {
+    sendReceipt: (sendTo, trx, trxId, type) => {
         if (!JPSM.initialized) return;
 
         console.log("sendReceipt")
@@ -283,10 +283,15 @@ module.exports = {
         expires.setTime(trx.expires);
         var expiresTxt = trx.expires != 0? "<p> Voimassaolo loppuu: " + JPSM.jps.timeHelper.getDayStr(expires) + "</p>" : ""
 
+        var extraText = ""
+        if(type === "normal"){
+            extraText = "<h1>Kiitos ostostasi!</h1>" +
+                "<p>Voit nyt mennä varaamaan tunteja <a href=\"https://www.siltavaraukset.com\">Joogakoulu Sillan</a> varauspalvelusta.</p>" +
+                "<br></br>" 
+        }
+
         JPSM.html =
-            "<h1>Kiitos ostostasi!</h1>" +
-            "<p>Voit nyt mennä varaamaan tunteja <a href=\"https://www.siltavaraukset.com\">Joogakoulu Sillan</a> varauspalvelusta.</p>" +
-            "<br></br>" +
+            extraText +
             "<h1>Ostokuitti</h1>" +
             "<br></br>" +
             "<p>Tuote: " + trx.title + "</p>" +

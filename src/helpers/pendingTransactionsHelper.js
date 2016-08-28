@@ -45,7 +45,7 @@ module.exports = {
                     .update({transactionReference: JPS.pendingTransaction.timestamp, shopItem: JPS.pendingTransaction.shopItem})
                 }).then(()=>{
                     console.log("Updated SC-bookings succesfully");
-                    JPS.mailer.sendReceipt(JPS.pendingTransaction.receiptEmail, JPS.dataToUpdate, JPS.pendingTransaction.timestamp);
+                    JPS.mailer.sendReceipt(JPS.pendingTransaction.receiptEmail, JPS.dataToUpdate, JPS.pendingTransaction.timestamp, "special");
                 })
                 .catch(error => {
                     console.error("Processing SC-bookings failed: ", pendingTransactionKey, error);
@@ -53,7 +53,7 @@ module.exports = {
                 })
                 resolve({code: 200, message: "OK"});                    
             } else {
-                JPS.mailer.sendReceipt(JPS.pendingTransaction.receiptEmail, JPS.dataToUpdate, JPS.pendingTransaction.timestamp);
+                JPS.mailer.sendReceipt(JPS.pendingTransaction.receiptEmail, JPS.dataToUpdate, JPS.pendingTransaction.timestamp, "normal");
                 resolve({code: 200, message: "OK"});                    
             }                  
         }).catch(err => {

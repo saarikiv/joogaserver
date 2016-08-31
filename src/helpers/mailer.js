@@ -128,7 +128,7 @@ module.exports = {
             "<p>Aika: " + JPSM.jps.timeHelper.getTimeStr(courseTime) + "</p>" +
             "<br></br>" +
             "<p>Mikäli et pääse osallistumaan tunnille voit perua ilmoittautumisesi vielä vähintään 3 h ennen tunnin alkamista.</p>" +
-            "<footer><a href=\"https://www.siltavaraukset.com\">Joogakoulu Silta</a>, joogakoulusilta@gmail.com</footer>"
+            "<footer><a href=\"https://www.siltavaraukset.com\">siltavaraukset.com</a>, joogakoulusilta@gmail.com</footer>"
 
         console.log("CONFIRMATION: ", JPSM.html)
 
@@ -164,7 +164,7 @@ module.exports = {
             "<br></br>" +
             "<p>Kertalippusi on palautettu tilillesi.</p>" +
             "<p>Tervetuloa jonain toisena ajankohtana!</p>" +
-            "<footer><a href=\"https://www.siltavaraukset.com\">Joogakoulu Silta</a>, joogakoulusilta@gmail.com</footer>"
+            "<footer><a href=\"https://www.siltavaraukset.com\">siltavaraukset.com</a>, joogakoulusilta@gmail.com</footer>"
 
         JPSM.data = {
             from: JPSM.mg_from_who,
@@ -195,7 +195,7 @@ module.exports = {
             "<p>Aika: " + JPSM.jps.timeHelper.getTimeStr(day) + "</p>" +
             "<br></br>" +
             "<p>Tervetuloa jonain toisena ajankohtana!</p>" +
-            "<footer><a href=\"https://www.siltavaraukset.com\">Joogakoulu Silta</a>, joogakoulusilta@gmail.com</footer>"
+            "<footer><a href=\"https://www.siltavaraukset.com\">siltavaraukset.com</a>, joogakoulusilta@gmail.com</footer>"
 
         JPSM.data = {
             from: JPSM.mg_from_who,
@@ -228,7 +228,7 @@ module.exports = {
             "<br></br>" +
             "<p>Kertalippusi on palautettu tilillesi.</p>" +
             "<p>Tervetuloa jonain toisena ajankohtana!</p>" +
-            "<footer><a href=\"https://www.siltavaraukset.com\">Joogakoulu Silta</a>, joogakoulusilta@gmail.com</footer>"
+            "<footer><a href=\"https://www.siltavaraukset.com\">siltavaraukset.com</a>, joogakoulusilta@gmail.com</footer>"
 
         JPSM.data = {
             from: JPSM.mg_from_who,
@@ -259,7 +259,7 @@ module.exports = {
             "<p>Aika: " + JPSM.jps.timeHelper.getTimeStr(day) + "</p>" +
             "<br></br>" +
             "<p>Tervetuloa jonain toisena ajankohtana!</p>" +
-            "<footer><a href=\"https://www.siltavaraukset.com\">Joogakoulu Silta</a>, joogakoulusilta@gmail.com</footer>"
+            "<footer><a href=\"https://www.siltavaraukset.com\">siltavaraukset.com</a>, joogakoulusilta@gmail.com</footer>"
 
         JPSM.data = {
             from: JPSM.mg_from_who,
@@ -307,8 +307,8 @@ module.exports = {
             "<p>Maksupalvelutunniste: " + trx.details.transaction.id + "</p>" +
             "<p>Maksutapa: " + trx.details.transaction.paymentInstrumentType + "</p>" +
             "<br></br>" +
-            "<p>Y-tunnus: 2736475-2  ALV-numero: FI27364752</p>" +
-            "<footer><a href=\"https://www.siltavaraukset.com\">Joogakoulu Silta</a>, joogakoulusilta@gmail.com</footer>"
+            "<p>Y-tunnus: 2773647-2  ALV-numero: FI27736472</p>" +
+            "<footer><a href=\"https://www.siltavaraukset.com\">siltavaraukset.com</a>, joogakoulusilta@gmail.com</footer>"
 
         JPSM.data = {
             from: JPSM.mg_from_who,
@@ -340,7 +340,7 @@ module.exports = {
             "<p>Aika: " + JPSM.jps.timeHelper.getTimeStr(day) + "</p>" +
             "<br></br>" +
             "<p>Käy varaamassa paikkasi. Paikan saa ensimmäinen varaaja.</p>" +
-            "<footer><a href=\"https://www.siltavaraukset.com\">Joogakoulu Silta</a>, joogakoulusilta@gmail.com</footer>"
+            "<footer><a href=\"https://www.siltavaraukset.com\">siltavaraukset.com</a>, joogakoulusilta@gmail.com</footer>"
 
         JPSM.data = {
             from: JPSM.mg_from_who,

@@ -60,7 +60,7 @@ module.exports = {
 
         JPSM.html =
             "<h1>Palaute:</h1>" +
-            "<p>"+ feedback +"</p>" +
+            "<p>" + feedback + "</p>" +
             "<br>" +
             "<p> Terveisin " + user.email + "</p>"
         console.log("Feedback: ", JPSM.html)
@@ -125,7 +125,6 @@ module.exports = {
             "<h1>Varauksen vahvistus</h1>" +
             "<p>Varauksesi tunnille " + courseInfo.courseType.name + " on vahvistettu.</p>" +
             "<p>Päivä: " + JPSM.jps.timeHelper.getDayStr(courseTime) + "</p>" +
-            "<p>Aika: " + JPSM.jps.timeHelper.getTimeStr(courseTime) + "</p>" +
             "<br></br>" +
             "<p>Mikäli et pääse osallistumaan tunnille voit perua ilmoittautumisesi vielä vähintään 3 h ennen tunnin alkamista.</p>" +
             "<footer><a href=\"https://www.siltavaraukset.com\">siltavaraukset.com</a>, joogakoulusilta@gmail.com</footer>"
@@ -135,7 +134,7 @@ module.exports = {
         JPSM.data = {
             from: JPSM.mg_from_who,
             to: sendTo,
-            subject: 'Varausvahvistus:' + courseTime.toString() + ' - Joogakoulu Silta',
+            subject: 'Varausvahvistus: - Joogakoulu Silta',
             html: JPSM.html
         }
         JPSM.mailgun.messages().send(JPSM.data, (err, body) => {
@@ -160,7 +159,6 @@ module.exports = {
             "<h1>Tunti jolle olet ilmoittautunut on peruttu!</h1>" +
             "<p>Tunti " + courseInfo.courseType.name + " on peruttu.</p>" +
             "<p>Päivä: " + JPSM.jps.timeHelper.getDayStr(day) + "</p>" +
-            "<p>Aika: " + JPSM.jps.timeHelper.getTimeStr(day) + "</p>" +
             "<br></br>" +
             "<p>Kertalippusi on palautettu tilillesi.</p>" +
             "<p>Tervetuloa jonain toisena ajankohtana!</p>" +
@@ -169,7 +167,7 @@ module.exports = {
         JPSM.data = {
             from: JPSM.mg_from_who,
             to: sendTo,
-            subject: 'Tunnin peruutusilmoitus:' + day.toString() + ' - Joogakoulu Silta',
+            subject: 'Tunnin peruutusilmoitus: - Joogakoulu Silta',
             html: JPSM.html
         }
         JPSM.mailgun.messages().send(JPSM.data, (err, body) => {
@@ -192,7 +190,6 @@ module.exports = {
             "<h1>Tunti jolle olet ilmoittautunut on peruttu!</h1>" +
             "<p>Tunti " + courseInfo.courseType.name + " on peruttu.</p>" +
             "<p>Päivä: " + JPSM.jps.timeHelper.getDayStr(day) + "</p>" +
-            "<p>Aika: " + JPSM.jps.timeHelper.getTimeStr(day) + "</p>" +
             "<br></br>" +
             "<p>Tervetuloa jonain toisena ajankohtana!</p>" +
             "<footer><a href=\"https://www.siltavaraukset.com\">siltavaraukset.com</a>, joogakoulusilta@gmail.com</footer>"
@@ -200,7 +197,7 @@ module.exports = {
         JPSM.data = {
             from: JPSM.mg_from_who,
             to: sendTo,
-            subject: 'Tunnin peruutusilmoitus:' + day.toString() + ' - Joogakoulu Silta',
+            subject: 'Tunnin peruutusilmoitus: - Joogakoulu Silta',
             html: JPSM.html
         }
         JPSM.mailgun.messages().send(JPSM.data, (err, body) => {
@@ -224,7 +221,6 @@ module.exports = {
             "<h1>Peruutuksen vahvistus</h1>" +
             "<p>Peruutuksesi tunnille " + courseInfo.courseType.name + " on vahvistettu.</p>" +
             "<p>Päivä: " + JPSM.jps.timeHelper.getDayStr(day) + "</p>" +
-            "<p>Aika: " + JPSM.jps.timeHelper.getTimeStr(day) + "</p>" +
             "<br></br>" +
             "<p>Kertalippusi on palautettu tilillesi.</p>" +
             "<p>Tervetuloa jonain toisena ajankohtana!</p>" +
@@ -233,7 +229,7 @@ module.exports = {
         JPSM.data = {
             from: JPSM.mg_from_who,
             to: sendTo,
-            subject: 'Peruutusvahvistus:' + day.toString() + ' - Joogakoulu Silta',
+            subject: 'Peruutusvahvistus: - Joogakoulu Silta',
             html: JPSM.html
         }
         JPSM.mailgun.messages().send(JPSM.data, (err, body) => {
@@ -256,7 +252,6 @@ module.exports = {
             "<h1>Peruutuksen vahvistus</h1>" +
             "<p>Peruutuksesi tunnille " + courseInfo.courseType.name + " on vahvistettu.</p>" +
             "<p>Päivä: " + JPSM.jps.timeHelper.getDayStr(day) + "</p>" +
-            "<p>Aika: " + JPSM.jps.timeHelper.getTimeStr(day) + "</p>" +
             "<br></br>" +
             "<p>Tervetuloa jonain toisena ajankohtana!</p>" +
             "<footer><a href=\"https://www.siltavaraukset.com\">siltavaraukset.com</a>, joogakoulusilta@gmail.com</footer>"
@@ -264,7 +259,7 @@ module.exports = {
         JPSM.data = {
             from: JPSM.mg_from_who,
             to: sendTo,
-            subject: 'Peruutusvahvistus:' + day.toString() + ' - Joogakoulu Silta',
+            subject: 'Peruutusvahvistus: - Joogakoulu Silta',
             html: JPSM.html
         }
         JPSM.mailgun.messages().send(JPSM.data, (err, body) => {
@@ -283,13 +278,13 @@ module.exports = {
         console.log(trx.title)
         var expires = new Date();
         expires.setTime(trx.expires);
-        var expiresTxt = trx.expires != 0? "<p> Voimassaolo loppuu: " + JPSM.jps.timeHelper.getDayStr(expires) + "</p>" : ""
+        var expiresTxt = trx.expires != 0 ? "<p> Voimassaolo loppuu: " + JPSM.jps.timeHelper.getDayStr(expires) + "</p>" : ""
 
         var extraText = ""
-        if(type === "normal"){
+        if (type === "normal") {
             extraText = "<h1>Kiitos ostostasi!</h1>" +
                 "<p>Voit nyt mennä varaamaan tunteja <a href=\"https://www.siltavaraukset.com\">Joogakoulu Sillan</a> varauspalvelusta.</p>" +
-                "<br></br>" 
+                "<br></br>"
         }
 
         JPSM.html =
@@ -337,7 +332,6 @@ module.exports = {
             "<h1>Tunnilta vapautunut paikka</h1>" +
             "<p>Paikka vapautunut tunnille " + courseInfo.courseType.name + "</p>" +
             "<p>Päivä: " + JPSM.jps.timeHelper.getDayStr(day) + "</p>" +
-            "<p>Aika: " + JPSM.jps.timeHelper.getTimeStr(day) + "</p>" +
             "<br></br>" +
             "<p>Käy varaamassa paikkasi. Paikan saa ensimmäinen varaaja.</p>" +
             "<footer><a href=\"https://www.siltavaraukset.com\">siltavaraukset.com</a>, joogakoulusilta@gmail.com</footer>"
